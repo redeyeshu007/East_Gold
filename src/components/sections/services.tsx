@@ -269,8 +269,9 @@ function ServicePanel({ card, index }: { card: ServiceCard; index: number }) {
 
           {/* CTA Button */}
           <div>
-            <button
-              className="service-cta-btn inline-flex items-center gap-3 font-semibold uppercase transition-all duration-300"
+            <a
+              href="#contact"
+              className="service-cta-btn inline-flex items-center gap-3 font-semibold uppercase transition-all duration-300 no-underline"
               style={{
                 padding: '18px 36px',
                 borderRadius: '999px',
@@ -279,6 +280,7 @@ function ServicePanel({ card, index }: { card: ServiceCard; index: number }) {
                 color: textColor,
                 fontSize: '13px',
                 letterSpacing: '2px',
+                textDecoration: 'none',
               }}
               onMouseEnter={(e) => {
                 const btn = e.currentTarget
@@ -302,7 +304,7 @@ function ServicePanel({ card, index }: { card: ServiceCard; index: number }) {
                 className="cta-arrow h-4 w-4"
                 style={{ transition: 'transform 0.3s ease' }}
               />
-            </button>
+            </a>
           </div>
         </div>
       </div>
