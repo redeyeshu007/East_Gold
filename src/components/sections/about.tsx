@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion'
-import { Award, CheckCircle2, ShieldCheck, Users } from 'lucide-react'
+import { Award, CheckCircle2, Users } from 'lucide-react'
 import { fadeInUp, staggerContainer, viewportOnce } from '@/lib/animations'
 import { useLanguage } from '@/i18n/language-context'
 
@@ -12,7 +12,6 @@ const COLORS = {
 
 const STATS = [
   { icon: Users, value: '10K+', label: 'Happy Customers' },
-  { icon: ShieldCheck, value: '5+', label: 'Services' },
   { icon: Award, value: '100%', label: 'Transparency' },
   { icon: CheckCircle2, value: '100%', label: 'Customer Satisfaction' },
 ]

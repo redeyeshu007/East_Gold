@@ -182,7 +182,6 @@ export interface Stat {
 export const STATS: Stat[] = [
   { value: '99.9%', label: 'Valuation Accuracy' },
   { value: '10,000+', label: 'Happy Customers' },
-  { value: '20+', label: 'Years of Experience' },
   { value: '100%', label: 'Transparent Process' },
 ]
 
