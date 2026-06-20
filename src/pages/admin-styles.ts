@@ -44,11 +44,9 @@ export const adminStyles = `
   .eg-admin-logo {
     display: flex; align-items: center; justify-content: center;
     width: 64px; height: 64px; border-radius: 9999px;
-    background: linear-gradient(135deg, #FFFDF5, #F6E7B6);
-    border: 1px solid rgba(212,175,55,0.5);
-    box-shadow: 0 8px 24px rgba(212,175,55,0.25); overflow: hidden;
+    background: transparent; overflow: hidden;
   }
-  .eg-admin-logo--sm { width: 36px; height: 36px; box-shadow: none; }
+  .eg-admin-logo--sm { width: 36px; height: 36px; }
   .eg-admin-logo img { width: 100%; height: 100%; object-fit: contain; }
   .eg-admin-wordmark { margin-top: 12px; font-family: 'Cormorant Garamond', Georgia, serif; font-size: 26px; font-weight: 600; color: #111; }
   .eg-admin-caption { margin-top: 2px; font-size: 11px; font-weight: 600; letter-spacing: 0.22em; text-transform: uppercase; color: var(--eg-gold); }

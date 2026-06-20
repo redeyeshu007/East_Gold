@@ -146,8 +146,8 @@ export function Navbar() {
             initial={false}
             animate={{ scale: scrolled ? 0.95 : 1 }}
             transition={{ duration: 0.4, ease: easeLux }}
-            className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-full text-white shadow-lg"
-            style={{ background: GOLD[600] }}
+            className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-full"
+            style={{ background: 'transparent' }}
           >
             <img
               alt={`${CONTACT.brand} Logo`}
