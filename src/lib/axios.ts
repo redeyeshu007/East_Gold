@@ -22,12 +22,17 @@ apiClient.interceptors.request.use((config: InternalAxiosRequestConfig) => {
   return config
 })
 
+/** Fired when an authenticated request is rejected (expired/invalid session). */
+export const AUTH_UNAUTHORIZED_EVENT = 'admin-unauthorized'
+
 // Centralized response/error handling.
 apiClient.interceptors.response.use(
   (response) => response,
   (error: AxiosError) => {
     if (error.response?.status === 401) {
-      // e.g. clear the session and redirect to login.
+      // Clear the session and let the admin UI redirect to the login screen.
+      localStorage.removeItem('auth_token')
+      window.dispatchEvent(new Event(AUTH_UNAUTHORIZED_EVENT))
     }
     return Promise.reject(error)
   },

@@ -1,68 +1,63 @@
 /**
- * EastGold admin API.
+ * EastGold admin API (MongoDB / Express / Mongoose, MVC).
  *
- * Endpoints:
- *   POST /api/admin/login   → { token }            (issues a JWT)
- *   GET  /api/gold-rate     → GoldRate             (public)
- *   PUT  /api/gold-rate     → GoldRate             (requires Bearer token)
+ * Public endpoints:
+ *   GET  /api/gold-rate            → current gold rate
+ *   POST /api/enquiries            → store a website enquiry
+ *   POST /api/contact              → store a contact request
+ *
+ * Admin endpoints (Bearer JWT):
+ *   POST   /api/admin/login        → { token }
+ *   GET    /api/admin/me           → admin profile
+ *   PATCH  /api/admin/me           → update profile / password
+ *   GET    /api/enquiries          → list (?search=&status=)
+ *   GET    /api/enquiries/stats    → dashboard counts
+ *   PATCH  /api/enquiries/:id      → update status
+ *   DELETE /api/enquiries/:id      → delete
+ *   (same surface under /api/contact)
+ *   GET    /api/gold-rate/history  → rate history
+ *   PUT    /api/gold-rate          → record a new rate
  */
 import express from 'express'
 import cors from 'cors'
-import jwt from 'jsonwebtoken'
-import { ADMIN, CORS_ORIGINS, JWT_SECRET, PORT, TOKEN_TTL } from './config.js'
-import { readGoldRate, writeGoldRate } from './store.js'
+import { pathToFileURL } from 'node:url'
+import { CORS_ORIGINS, PORT } from './config.js'
+import { connectDB } from './db.js'
+import { seed } from './seed.js'
+import authRoutes from './routes/authRoutes.js'
+import enquiryRoutes from './routes/enquiryRoutes.js'
+import contactRoutes from './routes/contactRoutes.js'
+import goldRateRoutes from './routes/goldRateRoutes.js'
+import { errorHandler, notFound } from './middleware/error-handler.js'
 
 const app = express()
 app.use(cors({ origin: CORS_ORIGINS }))
 app.use(express.json())
 
-/** Verifies the Bearer token and rejects unauthenticated requests. */
-function requireAuth(req, res, next) {
-  const header = req.headers.authorization || ''
-  const token = header.startsWith('Bearer ') ? header.slice(7) : null
-  if (!token) return res.status(401).json({ message: 'Authentication required.' })
-  try {
-    req.admin = jwt.verify(token, JWT_SECRET)
-    next()
-  } catch {
-    return res.status(401).json({ message: 'Invalid or expired session.' })
-  }
+app.get('/api/health', (_req, res) => res.json({ ok: true }))
+
+app.use('/api/admin', authRoutes)
+app.use('/api/enquiries', enquiryRoutes)
+app.use('/api/contact', contactRoutes)
+app.use('/api/gold-rate', goldRateRoutes)
+
+app.use(notFound)
+app.use(errorHandler)
+
+export async function start() {
+  await connectDB()
+  await seed()
+  app.listen(PORT, () => {
+    console.log(`EastGold API running on http://localhost:${PORT}`)
+  })
 }
 
-// ── Auth ────────────────────────────────────────────────────────────────────
-app.post('/api/admin/login', (req, res) => {
-  const { username, password } = req.body || {}
-  if (username === ADMIN.username && password === ADMIN.password) {
-    const token = jwt.sign({ username, role: 'admin' }, JWT_SECRET, { expiresIn: TOKEN_TTL })
-    return res.json({ token })
-  }
-  return res.status(401).json({ message: 'Invalid username or password.' })
-})
+export { app }
 
-// ── Gold rate ─────────────────────────────────────────────────────────────--
-app.get('/api/gold-rate', async (_req, res) => {
-  try {
-    res.json(await readGoldRate())
-  } catch {
-    res.status(500).json({ message: 'Failed to read gold rate.' })
-  }
-})
-
-app.put('/api/gold-rate', requireAuth, async (req, res) => {
-  const oneGramRate = Number(req.body?.oneGramRate)
-
-  if (!Number.isFinite(oneGramRate) || oneGramRate < 0) {
-    return res.status(400).json({ message: 'oneGramRate must be a valid non-negative number.' })
-  }
-
-  try {
-    const updated = await writeGoldRate({ oneGramRate })
-    res.json(updated)
-  } catch {
-    res.status(500).json({ message: 'Failed to update gold rate.' })
-  }
-})
-
-app.listen(PORT, () => {
-  console.log(`EastGold API running on http://localhost:${PORT}`)
-})
+// Only auto-start when run directly (`node index.js`), not when imported.
+if (import.meta.url === pathToFileURL(process.argv[1]).href) {
+  start().catch((err) => {
+    console.error('Failed to start server:', err)
+    process.exit(1)
+  })
+}

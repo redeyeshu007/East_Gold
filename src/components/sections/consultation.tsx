@@ -16,6 +16,7 @@ import { buttonVariants } from '@/components/ui/button-variants'
 import { CONTACT } from '@/data/site'
 import { easeLux, fadeInUp, staggerContainer, viewportOnce } from '@/lib/animations'
 import { useLanguage } from '@/i18n/language-context'
+import { createEnquiry } from '@/lib/api/enquiries'
 
 const schema = z.object({
   name: z.string().min(2, 'Please enter your full name'),
@@ -40,9 +41,21 @@ export function Consultation() {
   } = useForm<FormValues>({ resolver: zodResolver(schema) })
 
   const onSubmit = async (values: FormValues) => {
-    // Simulated submission — wire to your API / CRM here.
-    await new Promise((r) => setTimeout(r, 700))
-    void values
+    // Persist the enquiry to the backend (MongoDB). The submission UX is kept
+    // identical even if the API is unreachable, so the public site never breaks.
+    try {
+      await createEnquiry({
+        name: values.name,
+        phone: values.mobile,
+        message: values.message,
+        area: values.area,
+        service: values.service,
+        typeOfGold: values.typeOfGold,
+        callTime: values.callTime,
+      })
+    } catch (err) {
+      console.error('Failed to store enquiry:', err)
+    }
     setSubmitted(true)
     reset()
   }
